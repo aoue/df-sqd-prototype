@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://2sp55ktd5qxu"]
+
+[ext_resource type="PackedScene" uid="uid://cdob3cxyhcnwu" path="res://combat scenes/unit_body.tscn" id="1_ykrqe"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameCamera" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
+
+[node name="UnitBody" parent="." instance=ExtResource("1_ykrqe")]

@@ -1,0 +1,104 @@
+[gd_scene load_steps=14 format=3 uid="uid://cdob3cxyhcnwu"]
+
+[ext_resource type="Texture2D" uid="uid://b2xt0tj0apb7p" path="res://combat assets/unit_circle.png" id="1_klbp7"]
+[ext_resource type="Texture2D" uid="uid://byg5o4vnxb5ky" path="res://combat assets/spritesheets/spritesheet_friday_revision.png" id="2_1k3i4"]
+[ext_resource type="Texture2D" uid="uid://bv8isw5yallhl" path="res://combat assets/dest_line.png" id="3_5oi21"]
+[ext_resource type="Texture2D" uid="uid://6sqogissfyo5" path="res://combat assets/dest point.png" id="4_mes2o"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5oi21"]
+radius = 67.11929
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mes2o"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(3750, 0, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s4jxv"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(3750, 1250, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tyyf3"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(2500, 2500, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n0bl6"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(3750, 2500, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8tyis"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(0, 0, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dm7g2"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(1250, 0, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e70tb"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(2500, 0, 1250, 1250)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_watqb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mes2o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s4jxv")
+}],
+"loop": true,
+"name": &"0_prep",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tyyf3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n0bl6")
+}],
+"loop": true,
+"name": &"1_rec",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8tyis")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dm7g2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e70tb")
+}],
+"loop": true,
+"name": &"2_move",
+"speed": 2.0
+}]
+
+[node name="UnitBody" type="CharacterBody2D"]
+
+[node name="UnitHitBox" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_5oi21")
+
+[node name="UnitCircle" type="Sprite2D" parent="."]
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("1_klbp7")
+
+[node name="UnitAnim" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_watqb")
+animation = &"0_prep"
+autoplay = "0_prep"
+frame_progress = 0.9213056
+
+[node name="Dest Home" type="Node2D" parent="."]
+
+[node name="DestLine" type="Sprite2D" parent="Dest Home"]
+self_modulate = Color(0.41436836, 1, 0.8345175, 1)
+texture = ExtResource("3_5oi21")
+centered = false
+offset = Vector2(650, 0)
+
+[node name="DestSpot" type="Sprite2D" parent="Dest Home"]
+self_modulate = Color(0.26666668, 1, 1, 1)
+position = Vector2(2242, -74)
+texture = ExtResource("4_mes2o")
