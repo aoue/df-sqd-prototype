@@ -22,15 +22,36 @@ if it gets shot and turned, just try to turn your heading back on track.
 - for attacks, don't just draw the weapon, also draw the strike arc/impact/lines, too. helps sell attacks.
 
 
-[[[[prototype step by step]]]]
+== [[[[prototype step by step]]]] ==
 
 [movement and ordering basics]
 - unit's visual framework exists (sprite and circle behind it)..................................................[DONE]
 - unit's visual orientation tools exist (arrow and destination line)............................................[DONE]
+- select action (by clicking button/pressing number key)........................................................[DONE]
+- as you move your mouse, draw a line from the unit to the mouse location. this shows the unit's predicted path.[DONE]
+- when you click, it locks the move down. the plan line stays exactly as you left it............................[DONE]
+- unit needs an additional pointer showing where it is facing...................................................[DONE]
+- while the unit moves, the dest should stay in the same spot...................................................[DONE]
+- the unit rotates its 'facing_arrow' the short way to be in alignment with its dest............................[DONE]
+- the unit moves and accelerates towards its dest...............................................................[DONE]
+- add basic unit animation......................................................................................[DONE]
 
-- unit rotatesa bit and flips to match orientation direction....................................................[]
 
-- unit's tick count (prep/rec/etc) display and are updated properly.............................................[]
+
+
+- add game tick visuals to unit (show how many are left in prep/exec/recovery)..................................[]
+	- also speedometer?
+
+- add game controller who synchronizes game steps and halts when appropriate....................................[]
+	each tick, before letting all the units act, check everyone's states:
+	- if a unit exits recovery, then we have to stop and resolve finding orders for it
+	- if a hit occurs, then we should pause for as long as we need to bring the camera over at least
+
+- going back 1 step, add in prep time and recovery time.
+	- unit starts in recovery
+	- when rec elapses, camera floats over and order mode begins
+	- when order locked in, unit enters prep
+	- when prep elapses, unit starts executing the action
 
 - when unit appropriate, the ACT- menu opens up
 	- opens for a specific unit, all options are relative to them...........................................[]
@@ -38,8 +59,14 @@ if it gets shot and turned, just try to turn your heading back on track.
 	- the player can click to select the move option........................................................[]
 	- the player can then click a position on the map.......................................................[]
 
-- the unit is able to move in accordance to ticks, to the location specified by the player's action
-	- animates properly while moving........................................................................[]
+- unit rotates a bit and flips to match orientation direction...................................................[]
+
+- unit's tick count (prep/rec/etc) display and are updated properly.............................................[]
+
+- camera control:
+	- scroll wheel
+	- wasd
+	- follow pointer
 
 
 [attack basics]

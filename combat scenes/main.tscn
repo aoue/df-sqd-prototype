@@ -1,16 +1,71 @@
-[gd_scene load_steps=2 format=3 uid="uid://2sp55ktd5qxu"]
+[gd_scene load_steps=3 format=3 uid="uid://2sp55ktd5qxu"]
 
-[ext_resource type="PackedScene" uid="uid://cdob3cxyhcnwu" path="res://combat scenes/unit_body.tscn" id="1_ykrqe"]
+[ext_resource type="Script" uid="uid://bged677w6ee85" path="res://combat scripts/main.gd" id="1_58u58"]
+[ext_resource type="PackedScene" uid="uid://cdob3cxyhcnwu" path="res://combat scenes/unitBody.tscn" id="1_ykrqe"]
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" node_paths=PackedStringArray("selected_unit")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -1920.0
+offset_bottom = -1080.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_58u58")
+selected_unit = NodePath("UnitHolder/UnitBody")
 
 [node name="GameCamera" type="Camera2D" parent="."]
-zoom = Vector2(0.5, 0.5)
+zoom = Vector2(0.25, 0.25)
 
-[node name="UnitBody" parent="." instance=ExtResource("1_ykrqe")]
+[node name="UnitHolder" type="Node" parent="."]
+
+[node name="UnitBody" parent="UnitHolder" instance=ExtResource("1_ykrqe")]
+position = Vector2(-3248, -1555)
+
+[node name="ActBackground" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = -2337.0
+offset_top = 1452.0
+offset_right = -537.0
+offset_bottom = 1632.0
+
+[node name="(1) MoveButton" type="Button" parent="ActBackground"]
+layout_mode = 0
+offset_left = 29.0
+offset_top = 22.0
+offset_right = 365.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(1) Move"
+
+[node name="(2) ActButton" type="Button" parent="ActBackground"]
+layout_mode = 0
+offset_left = 399.0
+offset_top = 22.0
+offset_right = 735.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(2) N/A"
+
+[node name="(3) ActButton" type="Button" parent="ActBackground"]
+layout_mode = 0
+offset_left = 775.0
+offset_top = 22.0
+offset_right = 1111.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(3) N/A"
+
+[node name="(4) ActButton" type="Button" parent="ActBackground"]
+layout_mode = 0
+offset_left = 1143.0
+offset_top = 22.0
+offset_right = 1479.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(4) N/A"
