@@ -8,14 +8,6 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_5oi21"]
 radius = 585.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_mes2o"]
-atlas = ExtResource("2_1k3i4")
-region = Rect2(3750, 0, 1250, 1250)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_s4jxv"]
-atlas = ExtResource("2_1k3i4")
-region = Rect2(3750, 1250, 1250, 1250)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_tyyf3"]
 atlas = ExtResource("2_1k3i4")
 region = Rect2(2500, 2500, 1250, 1250)
@@ -23,6 +15,14 @@ region = Rect2(2500, 2500, 1250, 1250)
 [sub_resource type="AtlasTexture" id="AtlasTexture_n0bl6"]
 atlas = ExtResource("2_1k3i4")
 region = Rect2(3750, 2500, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mes2o"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(3750, 0, 1250, 1250)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s4jxv"]
+atlas = ExtResource("2_1k3i4")
+region = Rect2(3750, 1250, 1250, 1250)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8tyis"]
 atlas = ExtResource("2_1k3i4")
@@ -40,24 +40,24 @@ region = Rect2(2500, 0, 1250, 1250)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mes2o")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_s4jxv")
-}],
-"loop": true,
-"name": &"0_prep",
-"speed": 2.0
-}, {
-"frames": [{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_tyyf3")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_n0bl6")
 }],
 "loop": true,
-"name": &"1_rec",
+"name": &"0_rec",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mes2o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s4jxv")
+}],
+"loop": true,
+"name": &"1_prep",
 "speed": 2.0
 }, {
 "frames": [{
@@ -71,15 +71,16 @@ animations = [{
 "texture": SubResource("AtlasTexture_e70tb")
 }],
 "loop": true,
-"name": &"2_move",
+"name": &"2_exec",
 "speed": 2.0
 }]
 
-[node name="UnitBody" type="CharacterBody2D" node_paths=PackedStringArray("animator", "facing_arrow", "travel_line")]
+[node name="UnitBody" type="CharacterBody2D" node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label")]
 script = ExtResource("1_uf3jt")
 animator = NodePath("UnitAnim")
 facing_arrow = NodePath("UnitArrowHolder/UnitArrow")
 travel_line = NodePath("Line2D")
+tick_display_label = NodePath("UnitArrowHolder/TickBackground/TickLabel")
 
 [node name="UnitHitBox" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_5oi21")
@@ -91,8 +92,8 @@ texture = ExtResource("1_klbp7")
 [node name="UnitAnim" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -50)
 sprite_frames = SubResource("SpriteFrames_watqb")
-animation = &"0_prep"
-autoplay = "0_prep"
+animation = &"2_exec"
+autoplay = "0_rec"
 
 [node name="Line2D" type="Line2D" parent="."]
 self_modulate = Color(0.6666667, 0.92941177, 0.99607843, 0.5686275)
@@ -104,3 +105,18 @@ width = 20.0
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_fa3sj")
 offset = Vector2(900, 0)
+
+[node name="TickBackground" type="ColorRect" parent="UnitArrowHolder"]
+offset_left = 321.0
+offset_top = -250.0
+offset_right = 441.0
+offset_bottom = -195.0
+scale = Vector2(1.5, 1.5)
+
+[node name="TickLabel" type="Label" parent="UnitArrowHolder/TickBackground"]
+layout_mode = 0
+offset_right = 113.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.112930365, 0.11293029, 6.016344e-09, 1)
+theme_override_font_sizes/font_size = 40
+text = "15|30"

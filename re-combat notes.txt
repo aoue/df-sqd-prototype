@@ -35,23 +35,23 @@ if it gets shot and turned, just try to turn your heading back on track.
 - the unit rotates its 'facing_arrow' the short way to be in alignment with its dest............................[DONE]
 - the unit moves and accelerates towards its dest...............................................................[DONE]
 - add basic unit animation......................................................................................[DONE]
-
-
+- add camera control, movement and zoom.........................................................................[DONE]
 
 
 - add game tick visuals to unit (show how many are left in prep/exec/recovery)..................................[]
-	- also speedometer?
 
-- add game controller who synchronizes game steps and halts when appropriate....................................[]
-	each tick, before letting all the units act, check everyone's states:
-	- if a unit exits recovery, then we have to stop and resolve finding orders for it
-	- if a hit occurs, then we should pause for as long as we need to bring the camera over at least
+- also add speedometer visuals to unit
 
-- going back 1 step, add in prep time and recovery time.
-	- unit starts in recovery
-	- when rec elapses, camera floats over and order mode begins
-	- when order locked in, unit enters prep
-	- when prep elapses, unit starts executing the action
+
+- add unit stopping exec when it reaches end point..............................................................[]
+
+
+- add full repeatable cycle of single unit: rec -> act -> prep -> exec for movement.............................[]
+
+
+- make sure camera works to assist this too.....................................................................[]
+
+
 
 - when unit appropriate, the ACT- menu opens up
 	- opens for a specific unit, all options are relative to them...........................................[]
@@ -59,14 +59,8 @@ if it gets shot and turned, just try to turn your heading back on track.
 	- the player can click to select the move option........................................................[]
 	- the player can then click a position on the map.......................................................[]
 
-- unit rotates a bit and flips to match orientation direction...................................................[]
 
-- unit's tick count (prep/rec/etc) display and are updated properly.............................................[]
 
-- camera control:
-	- scroll wheel
-	- wasd
-	- follow pointer
 
 
 [attack basics]

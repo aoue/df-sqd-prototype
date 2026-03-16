@@ -1,47 +1,51 @@
-extends Control
+extends Node
 
-enum unit_act {STOP, ACT, PROCEED}
+enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
 
 """
-Handles combat interface and main stepping logic.
+Handles user interface and game coordination.
 
-currently working on:
-
-Act menu:
-- pause game and float camera over
-- unit is selected (by game, for now: trivial)
-- select action (by clicking button/pressing number key)
-now you are in 'plan action' mode:
-- as you move your mouse, draw a line from the unit to the mouse location. this shows the unit's predicted path.
-- when you click, it locks the move down. the plan line stays exactly as you left it.
-- time resumes and the unit executes it.
 
 """
 
+@export var main_camera: Camera2D
+@export var unitHome: Node2D
+@export var test_packed_unit: PackedScene
 
-@export var selected_unit: UnitBody
-var selected_act: unit_act
+var unitManager: UnitHolder
+var current_state: game_state
+var selected_unit: UnitBody
+
+var unit_in_world: UnitBody
+
+func _init():
+	unitManager = UnitHolder.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# ui setup
+	 #main_camera.setup_borders(abs_dist_to_x_border, abs_dist_to_y_border)
 
 	# test setup
-	selected_act = unit_act.ACT
+	current_state = game_state.PROCEED
+	spawn_unit(test_packed_unit)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta) -> void:
+func _process(_delta) -> void:
+	# set the current state of the game
+	run_game()
+	
 	# listening for keyboard input when in order mode:
-	if selected_act == unit_act.ACT:
+	if current_state == game_state.RESOLVE_ACT:
 		# listen for input (move selection '1|2|3|4')
 		if Input.is_action_pressed("num_1_key"):
-			_move_command()
+			_plan_command(0)
 		elif Input.is_action_pressed("num_2_key"):
-			_action_command()
+			_plan_command(1)
 		elif Input.is_action_pressed("num_3_key"):
-			_action_command()
+			_plan_command(2)
 		elif Input.is_action_pressed("num_4_key"):
-			_action_command()
+			_plan_command(3)
 		
 		# listen for input (move lock-in 'left click')
 		if selected_unit.current_order == 1 or selected_unit.current_order == 2:
@@ -49,22 +53,84 @@ func _process(delta) -> void:
 				_lock_command()
 				# we can now continue time as well
 
-## User Interface
-func stop_and_await_orders() -> void:
-	# called when the game pauses and the player should order a unit
-	# order camera move to this specific part of the map
-	#selected_unit = guy
-	selected_act = unit_act.ACT
+## Setup
+func spawn_unit(packed_guy: PackedScene) -> void:
+	unit_in_world = packed_guy.instantiate()
+	unit_in_world.position = Vector2(500, 350)
+	unitHome.add_child(unit_in_world)
+	unitManager.add_unit(selected_unit)
 
-func _move_command() -> void:
-	# called when '1' pressed
-	selected_unit.move_mode()
+## Running the game
+func run_game():
+	"""
+	1. call unitHolder.look_for_hits()
+		> returns null if there are no hits to witness
+		> returns camera position and all the two actors if there is a hit
+			> move the camera over
+			> then call resolve_hit(unit 1, unit 2)
+			(all the units need to know is what kind of damage they receive and knockback intensity and direction they will experience later.)
+			(The two units' positions, states, and current actions are sufficient information to calculate everything.)
+		call unitHolder.look_for_hits() until there are no more hits to report.
+		
+	2. call unitHolder.look_for_units_ready_to_order()
+		> returns null if there are no units ready to receive orders (i.e. whose state is recovery and whose recovery ticks are equal to 0)
+		> returns camera position and the actor in question if there is someone ready
+			> move the camera over
+				> if an ai unit, decide that way
+				> if a player unit, then enter ACT state and wait for player input
+		call unitHolder.look_for_hits() until there are no more hits to report.
+		
+	3. finally, if you made it this far, then set the game state to proceed and let units move
+	"""
+	if current_state != game_state.PROCEED:
+		return
+	
+	if unitManager.look_for_hits():
+		# TODO  
+		resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
+		return
+	
+	if unitManager.look_for_units_ready_to_order():
+		resolve_ready_to_order(unitManager.position_of_interest, unitManager.units_of_interest)
+		return
+	
+	# otherwise,
+	current_state = game_state.PROCEED
 
-func _action_command() -> void:
+func can_proceed() -> bool:
+	return current_state == game_state.PROCEED
+
+func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
+	camera_move(over_here)
+	# we record the two units we care about
+	# but then we wait for the camera to signal us back
+	
+func resolve_ready_to_order(over_here: Vector2, units: Array[UnitBody]) -> void:
+	camera_move(over_here)
+	selected_unit = units[0]  # there will only ever be a single unit here.
+	current_state = game_state.RESOLVE_ACT
+	# we must now wait for the 
+
+func camera_move_completed() -> void:
+	# called by the camera and telling us that the camera move we requested has been completed.
+	# we will now witness whatever happens next.
+	if current_state == game_state.WAITING_TO_RESOLVE_HIT:
+		current_state = game_state.RESOLVE_HIT
+	elif current_state == game_state.WAITING_TO_RESOLVE_ACT:
+		current_state = game_state.RESOLVE_ACT
+	else:
+		print_debug("You shouldn't ever see this.")
+
+## Responding to User Input
+func _plan_command(val: int) -> void:
 	# called when '2|3|4' are pressed
-	selected_unit.action_mode()
+	selected_unit.planning_mode(val)
 
 func _lock_command() -> void:
 	# called when the player finishes an action, locks it in and resumes game
 	selected_unit.lock_mode()
-	selected_act = unit_act.PROCEED
+	current_state = game_state.PROCEED
+
+## Helpers
+func camera_move(over_here: Vector2) -> void:
+	main_camera.move_over_there(over_here)
