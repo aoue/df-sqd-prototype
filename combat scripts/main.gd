@@ -1,7 +1,5 @@
 extends Node2D
 
-#enum Coeffs.game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
-
 """
 Handles user interface and game coordination.
 
@@ -13,7 +11,6 @@ hardcoding paths works, so in the name of making progress, i'll continue like th
 
 #var unitManager: UnitHolder
 var unitManager: UnitHolder = UnitHolder.new()
-var current_state: Coeffs.game_state
 var selected_unit: UnitBody
 var unit_in_world: UnitBody
 
@@ -23,19 +20,19 @@ func _ready() -> void:
 	 #main_camera.setup_borders(abs_dist_to_x_border, abs_dist_to_y_border)
 
 	# test setup
-	current_state = Coeffs.game_state.PROCEED
+	Coeffs.state = Coeffs.game_state.PROCEED
 	selected_unit = null
 	
 	create_world.call_deferred()
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _physics_process(_delta) -> void:
+func _physics_process(delta) -> void:
 	# set the current state of the game
-	run_game()
+	run_game(delta)
 	
 	# listening for keyboard input when in order mode:
-	if current_state == Coeffs.game_state.RESOLVE_ACT and selected_unit:
+	if Coeffs.state == Coeffs.game_state.RESOLVE_ACT and selected_unit:
 		# listen for input (move selection '1|2|3|4')
 		if Input.is_action_pressed("num_1_key"):
 			_plan_command(0)
@@ -66,7 +63,7 @@ func spawn_unit() -> void:
 	add_child(unit_in_world)
 
 ## Running the game
-func run_game():
+func run_game(delta):
 	"""
 	1. call unitHolder.look_for_hits()
 		> returns null if there are no hits to witness
@@ -87,7 +84,8 @@ func run_game():
 		
 	3. finally, if you made it this far, then set the game state to proceed and let units move
 	"""
-	if current_state != Coeffs.game_state.PROCEED:
+	#print_debug(Coeffs.state)
+	if Coeffs.state != Coeffs.game_state.PROCEED:
 		return
 	
 	#if unitManager.look_for_hits():
@@ -101,8 +99,8 @@ func run_game():
 		return
 	
 	# otherwise,
-	current_state = Coeffs.game_state.PROCEED
-	unitManager.pass_ticks_for_units()
+	Coeffs.state = Coeffs.game_state.PROCEED
+	unitManager.pass_ticks_for_units(delta)
 
 func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
 	camera_move(over_here)
@@ -112,16 +110,16 @@ func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
 func resolve_ready_to_order(over_here: Vector2, units: Array[UnitBody]) -> void:
 	camera_move(over_here)
 	selected_unit = units[0]  # there will only ever be a single unit here.
-	current_state = Coeffs.game_state.WAITING_TO_RESOLVE_ACT
+	Coeffs.state = Coeffs.game_state.WAITING_TO_RESOLVE_ACT
 	# we must now wait for the 
 
 func camera_move_completed() -> void:
 	# called by the camera and telling us that the camera move we requested has been completed.
 	# we will now witness whatever happens next.
-	if current_state == Coeffs.game_state.WAITING_TO_RESOLVE_HIT:
-		current_state = Coeffs.game_state.RESOLVE_HIT
-	elif current_state == Coeffs.game_state.WAITING_TO_RESOLVE_ACT:
-		current_state = Coeffs.game_state.RESOLVE_ACT
+	if Coeffs.state == Coeffs.game_state.WAITING_TO_RESOLVE_HIT:
+		Coeffs.state = Coeffs.game_state.RESOLVE_HIT
+	elif Coeffs.state == Coeffs.game_state.WAITING_TO_RESOLVE_ACT:
+		Coeffs.state = Coeffs.game_state.RESOLVE_ACT
 	else:
 		print_debug("camera move reporting completed in the wrong state; you shouldn't ever see this.")
 
@@ -133,7 +131,7 @@ func _plan_command(val: int) -> void:
 func _lock_command() -> void:
 	# called when the player finishes an action, locks it in and resumes game
 	selected_unit.lock_mode()
-	current_state = Coeffs.game_state.PROCEED
+	Coeffs.state = Coeffs.game_state.PROCEED
 
 ## Helpers
 func camera_move(over_here: Vector2) -> void:

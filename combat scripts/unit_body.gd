@@ -45,17 +45,33 @@ func _physics_process(delta) -> void:
 		
 	elif Coeffs.can_proceed(): 
 		if current_order == order_mode.LOCKED:
-			travel_line.clear_points()
-			travel_line.add_point(get_facing_direction_vector()  * circle_radius)
-			travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
-			travel_line.add_point(to_local(dest))
+			if current_state == unit_state.PREP or current_state == unit_state.EXEC:
+				travel_line.clear_points()
+				travel_line.add_point(get_facing_direction_vector()  * circle_radius)
+				travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
+				travel_line.add_point(to_local(dest))
 			
-			facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
-			
-			speed = min(speed + (acceleration * delta), 4000)
-			velocity = get_facing_direction_vector() * speed
+			if current_state == unit_state.EXEC:
+				facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
+				
+				speed = min(speed + (acceleration * delta), 4000)
+				velocity = get_facing_direction_vector() * speed
+				
+				# Early exit; check if you've arrived at your destination.
+				#print_debug(position.distance_squared_to(dest))
+				if position.distance_squared_to(dest) < 1000:
+					position = dest
+					current_state = unit_state.REC
+					travel_line.clear_points()
+					
+			elif current_state == unit_state.REC:
+				# then deccelerate instead
+				travel_line.clear_points()
+				speed = max(speed - (5 * acceleration * delta), 0)
+				velocity = get_facing_direction_vector() * speed
+				
 			move_and_slide()
-		
+				
 		animate()
 		#pass_ticks()
 		
@@ -118,13 +134,19 @@ func lock_mode() -> void:
 	
 	# then change phase. this will also let the boss know we can continue time
 	current_order = order_mode.LOCKED
+	current_state = unit_state.PREP
 	
 	# temp
 	set_animation = false
+	
+	# set ticks here for now; in the future, you'll scrape this info from the move in question.
+	rec_ticks = 80
+	prep_ticks = 40
+	exec_ticks = 120  # something relative to the distance for all types; i.e. moving further takes longer, or aiming further takes longer
 
-func pass_ticks() -> void:
+func pass_ticks(delta) -> void:
 	if current_state == unit_state.REC:
-		rec_ticks -= 1
+		rec_ticks = max(rec_ticks - delta, 0)
 		if rec_ticks == 0:
 			current_state = unit_state.ACT
 			
@@ -132,12 +154,12 @@ func pass_ticks() -> void:
 		return
 		
 	elif current_state == unit_state.PREP:
-		prep_ticks -= 1
+		prep_ticks = max(prep_ticks - delta, 0)
 		if prep_ticks == 0:
 			current_state = unit_state.EXEC
 			
 	elif current_state == unit_state.EXEC:
-		exec_ticks -= 1
+		exec_ticks = max(exec_ticks - delta, 0)
 		if exec_ticks == 0:
 			current_state = unit_state.REC
 	display_ticks()

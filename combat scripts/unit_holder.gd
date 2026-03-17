@@ -27,9 +27,9 @@ func look_for_units_ready_to_order() -> bool:
 	return false
 
 ## Managing Units
-func pass_ticks_for_units() -> void:
+func pass_ticks_for_units(delta) -> void:
 	for unit in all_units:
-		unit.pass_ticks()
+		unit.pass_ticks(delta)
 
 func add_unit(add_me: UnitBody) -> void:
 	all_units.append(add_me)

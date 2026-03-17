@@ -38,19 +38,12 @@ if it gets shot and turned, just try to turn your heading back on track.
 - add camera control, movement and zoom.........................................................................[DONE]
 
 
-- add game tick visuals to unit (show how many are left in prep/exec/recovery)..................................[]
+- add game tick visuals to unit (show how many are left in prep/exec/recovery)..................................[DONE]
+- add unit stopping exec when it reaches end point OR runs out of ticks.........................................[DONE]
+- add full repeatable cycle of single unit: rec -> act -> prep -> exec for movement.............................[DONE]
+- make sure camera works to assist this too.....................................................................[DONE]
 
 - also add speedometer visuals to unit
-
-
-- add unit stopping exec when it reaches end point..............................................................[]
-
-
-- add full repeatable cycle of single unit: rec -> act -> prep -> exec for movement.............................[]
-
-
-- make sure camera works to assist this too.....................................................................[]
-
 
 
 - when unit appropriate, the ACT- menu opens up
@@ -60,8 +53,13 @@ if it gets shot and turned, just try to turn your heading back on track.
 	- the player can then click a position on the map.......................................................[]
 
 
+[design]
+player units should move very quick and snappily, quickly getting to their destinations?
+enemy units should be much slower though i guess
 
-
+[racing/flight challenges]
+these can exist. mostly it's a matter of factoring in your leftover acceleration
+or of dodging enemy attackers as you go i guess
 
 [attack basics]
 - create a target dummy

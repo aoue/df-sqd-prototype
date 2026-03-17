@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://2sp55ktd5qxu"]
+
+[ext_resource type="Script" uid="uid://bged677w6ee85" path="res://combat scripts/main.gd" id="1_58u58"]
+[ext_resource type="PackedScene" uid="uid://dgk8kdkydpt3" path="res://combat scenes/gameCamera.tscn" id="2_7nc6w"]
+
+[node name="Main" type="Node2D" unique_id=523028209 node_paths=PackedStringArray("main_camera")]
+script = ExtResource("1_58u58")
+main_camera = NodePath("GameCamera")
+
+[node name="GameCamera" parent="." unique_id=369468491 instance=ExtResource("2_7nc6w")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1416379035]
+follow_viewport_enabled = true
+
+[node name="ActBackground" type="ColorRect" parent="CanvasLayer" unique_id=2146227211]
+visible = false
+offset_left = -2698.0
+offset_top = 1974.0
+offset_right = -898.0
+offset_bottom = 2154.0
+
+[node name="(1) MoveButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=495067406]
+layout_mode = 0
+offset_left = 29.0
+offset_top = 22.0
+offset_right = 365.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(1) Move"
+
+[node name="(2) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=2107273558]
+layout_mode = 0
+offset_left = 399.0
+offset_top = 22.0
+offset_right = 735.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(2) N/A"
+
+[node name="(3) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=341371413]
+layout_mode = 0
+offset_left = 775.0
+offset_top = 22.0
+offset_right = 1111.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(3) N/A"
+
+[node name="(4) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=1410662606]
+layout_mode = 0
+offset_left = 1143.0
+offset_top = 22.0
+offset_right = 1479.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 80
+toggle_mode = true
+text = "(4) N/A"
