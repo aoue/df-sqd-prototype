@@ -1,27 +1,26 @@
-[gd_scene load_steps=4 format=3 uid="uid://2sp55ktd5qxu"]
+[gd_scene format=3 uid="uid://2sp55ktd5qxu"]
 
 [ext_resource type="Script" uid="uid://bged677w6ee85" path="res://combat scripts/main.gd" id="1_58u58"]
-[ext_resource type="PackedScene" uid="uid://cdob3cxyhcnwu" path="res://combat scenes/unitBody.tscn" id="1_ykrqe"]
 [ext_resource type="PackedScene" uid="uid://dgk8kdkydpt3" path="res://combat scenes/gameCamera.tscn" id="2_7nc6w"]
+[ext_resource type="PackedScene" uid="uid://0udlh63w3hai" path="res://combat scenes/test_unit.tscn" id="2_q5vk2"]
 
-[node name="Main" type="Node" node_paths=PackedStringArray("main_camera", "unitHome")]
+[node name="Main" type="Node2D" unique_id=523028209 node_paths=PackedStringArray("main_camera")]
 script = ExtResource("1_58u58")
 main_camera = NodePath("GameCamera")
-unitHome = NodePath("UnitHome")
-test_packed_unit = ExtResource("1_ykrqe")
+test_unit_scene_packed = ExtResource("2_q5vk2")
 
-[node name="UnitHome" type="Node2D" parent="."]
+[node name="GameCamera" parent="." unique_id=369468491 instance=ExtResource("2_7nc6w")]
 
-[node name="GameCamera" parent="." instance=ExtResource("2_7nc6w")]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1416379035]
+follow_viewport_enabled = true
 
-[node name="ActBackground" type="ColorRect" parent="."]
-visible = false
-offset_left = -2337.0
-offset_top = 1452.0
-offset_right = -537.0
-offset_bottom = 1632.0
+[node name="ActBackground" type="ColorRect" parent="CanvasLayer" unique_id=2146227211]
+offset_left = -2698.0
+offset_top = 1974.0
+offset_right = -898.0
+offset_bottom = 2154.0
 
-[node name="(1) MoveButton" type="Button" parent="ActBackground"]
+[node name="(1) MoveButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=495067406]
 layout_mode = 0
 offset_left = 29.0
 offset_top = 22.0
@@ -31,7 +30,7 @@ theme_override_font_sizes/font_size = 80
 toggle_mode = true
 text = "(1) Move"
 
-[node name="(2) ActButton" type="Button" parent="ActBackground"]
+[node name="(2) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=2107273558]
 layout_mode = 0
 offset_left = 399.0
 offset_top = 22.0
@@ -41,7 +40,7 @@ theme_override_font_sizes/font_size = 80
 toggle_mode = true
 text = "(2) N/A"
 
-[node name="(3) ActButton" type="Button" parent="ActBackground"]
+[node name="(3) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=341371413]
 layout_mode = 0
 offset_left = 775.0
 offset_top = 22.0
@@ -51,7 +50,7 @@ theme_override_font_sizes/font_size = 80
 toggle_mode = true
 text = "(3) N/A"
 
-[node name="(4) ActButton" type="Button" parent="ActBackground"]
+[node name="(4) ActButton" type="Button" parent="CanvasLayer/ActBackground" unique_id=1410662606]
 layout_mode = 0
 offset_left = 1143.0
 offset_top = 22.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cdob3cxyhcnwu"]
+[gd_scene format=3 uid="uid://cdob3cxyhcnwu"]
 
 [ext_resource type="Texture2D" uid="uid://b2xt0tj0apb7p" path="res://combat assets/unit_circle.png" id="1_klbp7"]
 [ext_resource type="Script" uid="uid://cey83jmxqowvu" path="res://combat scripts/unit_body.gd" id="1_uf3jt"]
@@ -75,48 +75,50 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="UnitBody" type="CharacterBody2D" node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label")]
+[node name="UnitBody" type="CharacterBody2D" unique_id=1180004237 node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label")]
 script = ExtResource("1_uf3jt")
 animator = NodePath("UnitAnim")
 facing_arrow = NodePath("UnitArrowHolder/UnitArrow")
 travel_line = NodePath("Line2D")
 tick_display_label = NodePath("UnitArrowHolder/TickBackground/TickLabel")
 
-[node name="UnitHitBox" type="CollisionShape2D" parent="."]
+[node name="UnitHitBox" type="CollisionShape2D" parent="." unique_id=1506177344]
 shape = SubResource("CircleShape2D_5oi21")
 
-[node name="UnitCircle" type="Sprite2D" parent="."]
+[node name="UnitCircle" type="Sprite2D" parent="." unique_id=1714466877]
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("1_klbp7")
 
-[node name="UnitAnim" type="AnimatedSprite2D" parent="."]
+[node name="UnitAnim" type="AnimatedSprite2D" parent="." unique_id=2125469224]
 position = Vector2(0, -50)
 sprite_frames = SubResource("SpriteFrames_watqb")
 animation = &"2_exec"
 autoplay = "0_rec"
 
-[node name="Line2D" type="Line2D" parent="."]
+[node name="Line2D" type="Line2D" parent="." unique_id=257074250]
 self_modulate = Color(0.6666667, 0.92941177, 0.99607843, 0.5686275)
 width = 20.0
 
-[node name="UnitArrowHolder" type="Node2D" parent="."]
+[node name="UnitArrowHolder" type="Node2D" parent="." unique_id=1659542056]
 
-[node name="UnitArrow" type="Sprite2D" parent="UnitArrowHolder"]
+[node name="UnitArrow" type="Sprite2D" parent="UnitArrowHolder" unique_id=128267870]
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_fa3sj")
 offset = Vector2(900, 0)
 
-[node name="TickBackground" type="ColorRect" parent="UnitArrowHolder"]
+[node name="TickBackground" type="ColorRect" parent="UnitArrowHolder" unique_id=1195681519]
 offset_left = 321.0
 offset_top = -250.0
 offset_right = 441.0
 offset_bottom = -195.0
 scale = Vector2(1.5, 1.5)
 
-[node name="TickLabel" type="Label" parent="UnitArrowHolder/TickBackground"]
+[node name="TickLabel" type="Label" parent="UnitArrowHolder/TickBackground" unique_id=2632340]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 55.0
 theme_override_colors/font_color = Color(0.112930365, 0.11293029, 6.016344e-09, 1)
 theme_override_font_sizes/font_size = 40
 text = "15|30"
+horizontal_alignment = 1
+vertical_alignment = 1

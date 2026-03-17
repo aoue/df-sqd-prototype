@@ -30,7 +30,7 @@ var exec_ticks: int
 func _ready() -> void:
 	current_order = order_mode.INACTIVE
 	current_state = unit_state.REC
-	rec_ticks = 10
+	rec_ticks = 100
 	set_animation = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -43,19 +43,24 @@ func _physics_process(delta) -> void:
 		travel_line.add_point(to_local(get_travel_line_first_point_mouse_relative()))
 		travel_line.add_point(to_local(get_travel_mouse_position()))
 		
+	elif Main.can_proceed(): 
+		if current_order == order_mode.LOCKED:
+			travel_line.clear_points()
+			travel_line.add_point(get_facing_direction_vector()  * circle_radius)
+			travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
+			travel_line.add_point(to_local(dest))
+			
+			facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
+			
+			speed = min(speed + (acceleration * delta), 4000)
+		else:
+			speed = max(0, speed - (1000 * delta))
 		
-	elif Main.can_proceed() and current_order == order_mode.LOCKED:
-		travel_line.clear_points()
-		travel_line.add_point(get_facing_direction_vector()  * circle_radius)
-		travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
-		travel_line.add_point(to_local(dest))
-		
-		facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
-		
-		speed = min(speed + (acceleration * delta), 4000)
 		velocity = get_facing_direction_vector() * speed
 		move_and_slide()
 		animate()
+		
+		#pass_ticks()
 		
 		# check if arrived at target
 		# - this will preemptively end the exec phase and have you enter rec
@@ -118,7 +123,6 @@ func lock_mode() -> void:
 	current_order = order_mode.LOCKED
 	
 	# temp
-	current_state = unit_state.PREP
 	set_animation = false
 
 func pass_ticks() -> void:
@@ -139,6 +143,7 @@ func pass_ticks() -> void:
 		exec_ticks -= 1
 		if exec_ticks == 0:
 			current_state = unit_state.REC
+	display_ticks()
 
 ## Visuals
 func display_ticks() -> void:

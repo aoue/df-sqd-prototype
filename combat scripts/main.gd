@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
 
@@ -9,17 +9,17 @@ Handles user interface and game coordination.
 """
 
 @export var main_camera: Camera2D
-@export var unitHome: Node2D
-@export var test_packed_unit: PackedScene
-
 var unitManager: UnitHolder
+
+@export var test_unit_scene_packed: PackedScene
+
+## only because packedscene stuff seems to be broken for some reason here...
+#@export var test_unit: PackedScene
+
+#var unitManager: UnitHolder
 var current_state: game_state
 var selected_unit: UnitBody
-
 var unit_in_world: UnitBody
-
-func _init():
-	unitManager = UnitHolder.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -28,15 +28,17 @@ func _ready() -> void:
 
 	# test setup
 	current_state = game_state.PROCEED
-	spawn_unit(test_packed_unit)
+	selected_unit = null
+	
+	create_world.call_deferred()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta) -> void:
+func _physics_process(_delta) -> void:
 	# set the current state of the game
-	run_game()
+	#run_game()
 	
 	# listening for keyboard input when in order mode:
-	if current_state == game_state.RESOLVE_ACT:
+	if current_state == game_state.RESOLVE_ACT and selected_unit:
 		# listen for input (move selection '1|2|3|4')
 		if Input.is_action_pressed("num_1_key"):
 			_plan_command(0)
@@ -54,11 +56,16 @@ func _process(_delta) -> void:
 				# we can now continue time as well
 
 ## Setup
-func spawn_unit(packed_guy: PackedScene) -> void:
-	unit_in_world = packed_guy.instantiate()
+func create_world() -> void:
+	unitManager = UnitHolder.new()
+	spawn_unit(test_unit_scene_packed)
+
+func spawn_unit(unit_packed: PackedScene) -> void:
+	unit_in_world = unit_packed.instantiate()
 	unit_in_world.position = Vector2(500, 350)
-	unitHome.add_child(unit_in_world)
-	unitManager.add_unit(selected_unit)
+	#unitManager.add_child(unit_in_world)
+	unitManager.add_unit(unit_in_world)
+	#add_child(unit_in_world)
 
 ## Running the game
 func run_game():
@@ -83,21 +90,27 @@ func run_game():
 	3. finally, if you made it this far, then set the game state to proceed and let units move
 	"""
 	if current_state != game_state.PROCEED:
+		print_debug("here")
 		return
 	
-	if unitManager.look_for_hits():
-		# TODO  
-		resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
-		return
+	#if unitManager.look_for_hits():
+		## TODO still needs to be implemented
+		#print_debug("here")
+		#resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
+		#return
 	
 	if unitManager.look_for_units_ready_to_order():
+		print_debug("here")
 		resolve_ready_to_order(unitManager.position_of_interest, unitManager.units_of_interest)
 		return
 	
 	# otherwise,
+	print_debug("here")
 	current_state = game_state.PROCEED
+	unitManager.pass_ticks_for_units()
 
 func can_proceed() -> bool:
+	#print_debug("in can_proceed: " + str(current_state == game_state.PROCEED))
 	return current_state == game_state.PROCEED
 
 func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:

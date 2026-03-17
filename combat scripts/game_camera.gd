@@ -1,6 +1,5 @@
 extends Camera2D
 
-
 """
 Listens to input from the player.
 Also responds to requests from the game to go to certain areas.
