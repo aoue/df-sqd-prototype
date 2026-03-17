@@ -92,8 +92,7 @@ texture = ExtResource("1_klbp7")
 [node name="UnitAnim" type="AnimatedSprite2D" parent="." unique_id=2125469224]
 position = Vector2(0, -50)
 sprite_frames = SubResource("SpriteFrames_watqb")
-animation = &"2_exec"
-autoplay = "0_rec"
+animation = &"0_rec"
 
 [node name="Line2D" type="Line2D" parent="." unique_id=257074250]
 self_modulate = Color(0.6666667, 0.92941177, 0.99607843, 0.5686275)

@@ -32,7 +32,6 @@ func pass_ticks_for_units() -> void:
 		unit.pass_ticks()
 
 func add_unit(add_me: UnitBody) -> void:
-	print_debug(add_me)
 	all_units.append(add_me)
 
 func remove_unit(remove_me: UnitBody) -> void:

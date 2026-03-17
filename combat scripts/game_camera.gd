@@ -16,10 +16,11 @@ var pointer_followWeight : float = 0.25
 func _physics_process(delta):
 	if locked_for_transit:
 		# perform the ordered move and then stop when you've arrived.
-		position = lerp(position, ordered_dest, 0.5)
-		if position == ordered_dest:
+		position = lerp(position, ordered_dest, 0.1)
+		if position.distance_squared_to(ordered_dest) < 0.1:
+			position = ordered_dest
 			locked_for_transit = false
-			Main.camera_move_completed()
+			get_parent().camera_move_completed()
 	else:
 		position += get_direction_input() * Coeffs.camera_constant * get_camera_speedup() * delta
 		zoom = zoom.lerp(get_zoom_input(), 0.5)

@@ -1,23 +1,19 @@
 extends Node2D
 
-enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
+#enum Coeffs.game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
 
 """
 Handles user interface and game coordination.
 
-
+had a frustrating bug where suddenly all exports and stuff stopped working.
+hardcoding paths works, so in the name of making progress, i'll continue like this, i suppose.
 """
 
-@export var main_camera: Camera2D
-var unitManager: UnitHolder
-
-@export var test_unit_scene_packed: PackedScene
-
-## only because packedscene stuff seems to be broken for some reason here...
-#@export var test_unit: PackedScene
+@export var main_camera: Camera2D 
 
 #var unitManager: UnitHolder
-var current_state: game_state
+var unitManager: UnitHolder = UnitHolder.new()
+var current_state: Coeffs.game_state
 var selected_unit: UnitBody
 var unit_in_world: UnitBody
 
@@ -27,18 +23,19 @@ func _ready() -> void:
 	 #main_camera.setup_borders(abs_dist_to_x_border, abs_dist_to_y_border)
 
 	# test setup
-	current_state = game_state.PROCEED
+	current_state = Coeffs.game_state.PROCEED
 	selected_unit = null
 	
 	create_world.call_deferred()
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(_delta) -> void:
 	# set the current state of the game
-	#run_game()
+	run_game()
 	
 	# listening for keyboard input when in order mode:
-	if current_state == game_state.RESOLVE_ACT and selected_unit:
+	if current_state == Coeffs.game_state.RESOLVE_ACT and selected_unit:
 		# listen for input (move selection '1|2|3|4')
 		if Input.is_action_pressed("num_1_key"):
 			_plan_command(0)
@@ -57,15 +54,16 @@ func _physics_process(_delta) -> void:
 
 ## Setup
 func create_world() -> void:
-	unitManager = UnitHolder.new()
-	spawn_unit(test_unit_scene_packed)
+	spawn_unit()
 
-func spawn_unit(unit_packed: PackedScene) -> void:
-	unit_in_world = unit_packed.instantiate()
+func spawn_unit() -> void:
+	var unit_scene: PackedScene = load("res://combat scenes/test_unit.tscn")
+	
+	unit_in_world = unit_scene.instantiate()
 	unit_in_world.position = Vector2(500, 350)
 	#unitManager.add_child(unit_in_world)
 	unitManager.add_unit(unit_in_world)
-	#add_child(unit_in_world)
+	add_child(unit_in_world)
 
 ## Running the game
 func run_game():
@@ -89,8 +87,7 @@ func run_game():
 		
 	3. finally, if you made it this far, then set the game state to proceed and let units move
 	"""
-	if current_state != game_state.PROCEED:
-		print_debug("here")
+	if current_state != Coeffs.game_state.PROCEED:
 		return
 	
 	#if unitManager.look_for_hits():
@@ -100,18 +97,12 @@ func run_game():
 		#return
 	
 	if unitManager.look_for_units_ready_to_order():
-		print_debug("here")
 		resolve_ready_to_order(unitManager.position_of_interest, unitManager.units_of_interest)
 		return
 	
 	# otherwise,
-	print_debug("here")
-	current_state = game_state.PROCEED
+	current_state = Coeffs.game_state.PROCEED
 	unitManager.pass_ticks_for_units()
-
-func can_proceed() -> bool:
-	#print_debug("in can_proceed: " + str(current_state == game_state.PROCEED))
-	return current_state == game_state.PROCEED
 
 func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
 	camera_move(over_here)
@@ -121,18 +112,18 @@ func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
 func resolve_ready_to_order(over_here: Vector2, units: Array[UnitBody]) -> void:
 	camera_move(over_here)
 	selected_unit = units[0]  # there will only ever be a single unit here.
-	current_state = game_state.RESOLVE_ACT
+	current_state = Coeffs.game_state.WAITING_TO_RESOLVE_ACT
 	# we must now wait for the 
 
 func camera_move_completed() -> void:
 	# called by the camera and telling us that the camera move we requested has been completed.
 	# we will now witness whatever happens next.
-	if current_state == game_state.WAITING_TO_RESOLVE_HIT:
-		current_state = game_state.RESOLVE_HIT
-	elif current_state == game_state.WAITING_TO_RESOLVE_ACT:
-		current_state = game_state.RESOLVE_ACT
+	if current_state == Coeffs.game_state.WAITING_TO_RESOLVE_HIT:
+		current_state = Coeffs.game_state.RESOLVE_HIT
+	elif current_state == Coeffs.game_state.WAITING_TO_RESOLVE_ACT:
+		current_state = Coeffs.game_state.RESOLVE_ACT
 	else:
-		print_debug("You shouldn't ever see this.")
+		print_debug("camera move reporting completed in the wrong state; you shouldn't ever see this.")
 
 ## Responding to User Input
 func _plan_command(val: int) -> void:
@@ -142,7 +133,7 @@ func _plan_command(val: int) -> void:
 func _lock_command() -> void:
 	# called when the player finishes an action, locks it in and resumes game
 	selected_unit.lock_mode()
-	current_state = game_state.PROCEED
+	current_state = Coeffs.game_state.PROCEED
 
 ## Helpers
 func camera_move(over_here: Vector2) -> void:

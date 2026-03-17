@@ -6,6 +6,12 @@ Coeffs, which holds constants useful for everyone in game.
 
 """
 
+""" Game Running, not constants (because i am your sworn enemy) """
+enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
+var state: game_state = game_state.PROCEED
+func can_proceed() -> bool:
+	return state == game_state.PROCEED
+
 """ Movement Constants """
 const rotation_constant: float = 3*PI/4
 const speed_constant: float = 100

@@ -43,7 +43,7 @@ func _physics_process(delta) -> void:
 		travel_line.add_point(to_local(get_travel_line_first_point_mouse_relative()))
 		travel_line.add_point(to_local(get_travel_mouse_position()))
 		
-	elif Main.can_proceed(): 
+	elif Coeffs.can_proceed(): 
 		if current_order == order_mode.LOCKED:
 			travel_line.clear_points()
 			travel_line.add_point(get_facing_direction_vector()  * circle_radius)
@@ -53,13 +53,10 @@ func _physics_process(delta) -> void:
 			facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
 			
 			speed = min(speed + (acceleration * delta), 4000)
-		else:
-			speed = max(0, speed - (1000 * delta))
+			velocity = get_facing_direction_vector() * speed
+			move_and_slide()
 		
-		velocity = get_facing_direction_vector() * speed
-		move_and_slide()
 		animate()
-		
 		#pass_ticks()
 		
 		# check if arrived at target

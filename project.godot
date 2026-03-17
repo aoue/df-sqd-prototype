@@ -22,7 +22,6 @@ config/icon="res://icon.svg"
 [autoload]
 
 Coeffs="*res://combat scripts/coeffs.gd"
-Main="*res://combat scripts/main.gd"
 
 [display]
 
