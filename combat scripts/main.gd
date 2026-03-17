@@ -52,12 +52,12 @@ func _physics_process(delta) -> void:
 ## Setup
 func create_world() -> void:
 	spawn_unit()
+	#spawn_unit()  # for testing multiple units interacting with the system
 
 func spawn_unit() -> void:
 	var unit_scene: PackedScene = load("res://combat scenes/test_unit.tscn")
-	
 	unit_in_world = unit_scene.instantiate()
-	unit_in_world.position = Vector2(500, 350)
+	unit_in_world.position = Vector2(1500, 1500)
 	#unitManager.add_child(unit_in_world)
 	unitManager.add_unit(unit_in_world)
 	add_child(unit_in_world)
@@ -88,11 +88,11 @@ func run_game(delta):
 	if Coeffs.state != Coeffs.game_state.PROCEED:
 		return
 	
-	#if unitManager.look_for_hits():
-		## TODO still needs to be implemented
-		#print_debug("here")
-		#resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
-		#return
+	if unitManager.look_for_hits():
+		# TODO still needs to be implemented
+		print_debug("here")
+		resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
+		return
 	
 	if unitManager.look_for_units_ready_to_order():
 		resolve_ready_to_order(unitManager.position_of_interest, unitManager.units_of_interest)

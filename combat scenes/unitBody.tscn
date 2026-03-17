@@ -75,12 +75,13 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="UnitBody" type="CharacterBody2D" unique_id=1180004237 node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label")]
+[node name="UnitBody" type="CharacterBody2D" unique_id=1180004237 node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label", "speed_display_label")]
 script = ExtResource("1_uf3jt")
 animator = NodePath("UnitAnim")
 facing_arrow = NodePath("UnitArrowHolder/UnitArrow")
 travel_line = NodePath("Line2D")
-tick_display_label = NodePath("UnitArrowHolder/TickBackground/TickLabel")
+tick_display_label = NodePath("UnitArrowHolder/InfoBackground/TickLabel")
+speed_display_label = NodePath("UnitArrowHolder/InfoBackground/SpeedLabel")
 
 [node name="UnitHitBox" type="CollisionShape2D" parent="." unique_id=1506177344]
 shape = SubResource("CircleShape2D_5oi21")
@@ -105,14 +106,14 @@ scale = Vector2(0.75, 0.75)
 texture = ExtResource("4_fa3sj")
 offset = Vector2(900, 0)
 
-[node name="TickBackground" type="ColorRect" parent="UnitArrowHolder" unique_id=1195681519]
+[node name="InfoBackground" type="ColorRect" parent="UnitArrowHolder" unique_id=1195681519]
 offset_left = 321.0
 offset_top = -250.0
 offset_right = 441.0
 offset_bottom = -195.0
 scale = Vector2(1.5, 1.5)
 
-[node name="TickLabel" type="Label" parent="UnitArrowHolder/TickBackground" unique_id=2632340]
+[node name="TickLabel" type="Label" parent="UnitArrowHolder/InfoBackground" unique_id=2632340]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 55.0
@@ -121,3 +122,13 @@ theme_override_font_sizes/font_size = 40
 text = "15|30"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="SpeedLabel" type="Label" parent="UnitArrowHolder/InfoBackground" unique_id=1383444365]
+layout_mode = 0
+offset_left = 5.3333335
+offset_top = 56.0
+offset_right = 45.333332
+offset_bottom = 79.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "120 SU"

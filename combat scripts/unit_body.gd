@@ -14,23 +14,26 @@ var set_animation: bool
 var current_order: order_mode
 var current_state: unit_state
 var dest: Vector2
-var moving: bool
-var attacking: bool
+var arrived: bool
 
-var speed: int = 500
-var acceleration: int = 2000
+var max_speed: int = 10000
+var speed: int = 0
+var rotation_speed: float = 0.0
+var acceleration: int = 3000
+var rotation_acceleration: float = PI
 
-## Ticks
+## Display
 @export var tick_display_label: Label
-var rec_ticks: int
-var prep_ticks: int
-var exec_ticks: int
+@export var speed_display_label: Label
+var rec_ticks: float
+var prep_ticks: float
+var exec_ticks: float
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	current_order = order_mode.INACTIVE
 	current_state = unit_state.REC
-	rec_ticks = 100
+	rec_ticks = 2
 	set_animation = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -51,15 +54,20 @@ func _physics_process(delta) -> void:
 				travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
 				travel_line.add_point(to_local(dest))
 			
+			if current_state == unit_state.PREP:
+				# rotation speed also has to accelerate...
+				#rotation_speed = min(rotation_speed + (rotation_acceleration * delta), Coeffs.rotation_constant)
+				rotation_speed = Coeffs.rotation_constant
+				facing_arrow.rotate(rotation_speed * delta * get_rotation_direction())
+			
 			if current_state == unit_state.EXEC:
-				facing_arrow.rotate(Coeffs.rotation_constant * delta * get_rotation_direction())
-				
-				speed = min(speed + (acceleration * delta), 4000)
+				speed = min(speed + (acceleration * delta), max_speed)
 				velocity = get_facing_direction_vector() * speed
 				
 				# Early exit; check if you've arrived at your destination.
 				#print_debug(position.distance_squared_to(dest))
-				if position.distance_squared_to(dest) < 1000:
+				if position.distance_to(dest) < 50:
+					arrived = true
 					position = dest
 					current_state = unit_state.REC
 					travel_line.clear_points()
@@ -67,30 +75,26 @@ func _physics_process(delta) -> void:
 			elif current_state == unit_state.REC:
 				# then deccelerate instead
 				travel_line.clear_points()
-				speed = max(speed - (5 * acceleration * delta), 0)
-				velocity = get_facing_direction_vector() * speed
+				#speed = max(speed - (5 * acceleration * delta), 0)
+				speed = 0
+				rotation_speed = 0
+				velocity = Vector2.ZERO
 				
 			move_and_slide()
 				
 		animate()
-		#pass_ticks()
-		
-		# check if arrived at target
-		# - this will preemptively end the exec phase and have you enter rec
-		
-		"""
-		regarding velocity and acceleration:
-			carries over between actions? so if you were moving fast at the end of last action, you still would be now
-		"""
 
 ## Helpers
 func get_rotation_direction() -> int:
 	# returns 0, 1, or -1 to be multiplied with rotation.
 	# negative angle means you have already passed it, clockwise
 	# positive angle whens you have not yet passed it, clockwise
+	if arrived:
+		return 0
+	
 	var face_to_dest_angle: float = (get_facing_direction_vector() * circle_radius).angle_to(to_local(dest))
 	
-	if abs(face_to_dest_angle) < 0.05:
+	if abs(face_to_dest_angle) < 0.1:
 		facing_arrow.rotation = get_direction_vector_to_dest().angle()
 		return 0
 	if face_to_dest_angle < 0:
@@ -138,11 +142,28 @@ func lock_mode() -> void:
 	
 	# temp
 	set_animation = false
+	arrived = false
 	
-	# set ticks here for now; in the future, you'll scrape this info from the move in question.
-	rec_ticks = 80
-	prep_ticks = 40
-	exec_ticks = 120  # something relative to the distance for all types; i.e. moving further takes longer, or aiming further takes longer
+	#speed = 500
+	#rotation_speed = PI / 4
+	
+	set_ticks()  ## pass in move as argument
+	
+
+func set_ticks() -> void:
+	# given the locked action, sets tick timers.
+	rec_ticks = 2
+	prep_ticks = 1
+	
+	# for movement-based moves, calculate how long it will take is a part of this
+	# t = sqrt(2d / a)
+	var distance_to_dest: float = position.distance_to(dest)
+	var time: float = sqrt(2 * distance_to_dest / acceleration)
+	
+	#var angle_to_dest: float = facing_arrow.get_angle_to(dest)
+	#var rot_time: float = sqrt(2 * abs(angle_to_dest) / rotation_acceleration)
+	#exec_ticks = snappedf(time + rot_time, 0.1)
+	exec_ticks = snappedf(time, 0.1)
 
 func pass_ticks(delta) -> void:
 	if current_state == unit_state.REC:
@@ -163,8 +184,15 @@ func pass_ticks(delta) -> void:
 		if exec_ticks == 0:
 			current_state = unit_state.REC
 	display_ticks()
+	display_speed()
 
 ## Visuals
+func display_speed() -> void:
+	@warning_ignore("integer_division")
+	var velocity_dislay: int = int(abs(velocity.length())) / 10
+	
+	speed_display_label.text = str(velocity_dislay) + " SU"
+
 func display_ticks() -> void:
 	"""
 	use tick_label to show relevant tick count. 
@@ -174,11 +202,11 @@ func display_ticks() -> void:
 		- PREP and EXEC: 'prep_ticks|exec_ticks'
 	"""
 	if current_state == unit_state.REC:
-		tick_display_label.text = str(rec_ticks) + "|REC"
+		tick_display_label.text = str(snappedf(rec_ticks, 0.1) * 10) + "|REC"
 	elif current_state == unit_state.ACT:
 		tick_display_label.text = "ACT"
 	else: 
-		tick_display_label.text = str(prep_ticks) + "|" + str(exec_ticks)
+		tick_display_label.text = str(snappedf(prep_ticks, 0.1) * 10) + "|" + str(snappedf(exec_ticks, 0.1) * 10)
 
 func animate() -> void:
 	if set_animation:
