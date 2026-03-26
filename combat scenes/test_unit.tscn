@@ -1,5 +1,14 @@
 [gd_scene format=3 uid="uid://0udlh63w3hai"]
 
 [ext_resource type="PackedScene" uid="uid://cdob3cxyhcnwu" path="res://combat scenes/unitBody.tscn" id="1_fq1to"]
+[ext_resource type="Texture2D" uid="uid://bas0vo5yye1g7" path="res://combat assets/fire_zone.png" id="2_cnglb"]
 
-[node name="UnitBody" unique_id=1180004237 instance=ExtResource("1_fq1to")]
+[node name="TestUnit" unique_id=1180004237 instance=ExtResource("1_fq1to")]
+starting_rec = 1000.0
+
+[node name="UnitAnim" parent="." index="3" unique_id=2125469224]
+visible = false
+
+[node name="Sprite2D" type="Sprite2D" parent="." index="4" unique_id=859265696]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_cnglb")

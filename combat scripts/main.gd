@@ -44,10 +44,16 @@ func _physics_process(delta) -> void:
 			_plan_command(3)
 		
 		# listen for input (move lock-in 'left click')
-		if selected_unit.current_order == 1 or selected_unit.current_order == 2:
+		if selected_unit.current_order == 1:  # or selected_unit.current_order == 2:
 			if Input.is_action_pressed("lmb_click"):
 				_lock_command()
 				# we can now continue time as well
+	elif Coeffs.state == Coeffs.game_state.RESOLVE_REC_DASH and selected_unit:
+		# no input selection available, you are locked in the rec_dash.
+		if selected_unit.current_order == 1:  # or selected_unit.current_order == 2:
+			if Input.is_action_pressed("lmb_click"):
+				_lock_rec_dash()
+		
 
 ## Setup
 func create_world() -> void:
@@ -55,7 +61,7 @@ func create_world() -> void:
 	#spawn_unit()  # for testing multiple units interacting with the system
 
 func spawn_unit() -> void:
-	var unit_scene: PackedScene = load("res://combat scenes/test_unit.tscn")
+	var unit_scene: PackedScene = load("res://combat scenes/unitBody.tscn")
 	unit_in_world = unit_scene.instantiate()
 	unit_in_world.position = Vector2(1500, 1500)
 	#unitManager.add_child(unit_in_world)
@@ -88,30 +94,36 @@ func run_game(delta):
 	if Coeffs.state != Coeffs.game_state.PROCEED:
 		return
 	
-	if unitManager.look_for_hits():
-		# TODO still needs to be implemented
-		print_debug("here")
-		resolve_hit(unitManager.position_of_interest, unitManager.units_of_interest)
-		return
-	
+	## first regular orders
 	if unitManager.look_for_units_ready_to_order():
 		resolve_ready_to_order(unitManager.position_of_interest, unitManager.units_of_interest)
 		return
 	
+	## Then recovery dashes
+	if unitManager.look_for_units_ready_to_recovery_dash():
+		resolve_rec_dash(unitManager.position_of_interest, unitManager.units_of_interest)
+		return
+		
 	# otherwise,
 	Coeffs.state = Coeffs.game_state.PROCEED
 	unitManager.pass_ticks_for_units(delta)
 
+
 func resolve_hit(over_here: Vector2, _units: Array[UnitBody]) -> void:
 	camera_move(over_here)
-	# we record the two units we care about
 	# but then we wait for the camera to signal us back
 	
 func resolve_ready_to_order(over_here: Vector2, units: Array[UnitBody]) -> void:
 	camera_move(over_here)
 	selected_unit = units[0]  # there will only ever be a single unit here.
 	Coeffs.state = Coeffs.game_state.WAITING_TO_RESOLVE_ACT
-	# we must now wait for the 
+	# now we wait for the signal back.
+
+func resolve_rec_dash(over_here: Vector2, units: Array[UnitBody]) -> void:
+	camera_move(over_here)
+	selected_unit = units[0]
+	Coeffs.state = Coeffs.game_state.WAITING_TO_RESOLVE_REC_DASH
+	# now we wait for the signal back.
 
 func camera_move_completed() -> void:
 	# called by the camera and telling us that the camera move we requested has been completed.
@@ -120,17 +132,25 @@ func camera_move_completed() -> void:
 		Coeffs.state = Coeffs.game_state.RESOLVE_HIT
 	elif Coeffs.state == Coeffs.game_state.WAITING_TO_RESOLVE_ACT:
 		Coeffs.state = Coeffs.game_state.RESOLVE_ACT
+	elif Coeffs.state == Coeffs.game_state.WAITING_TO_RESOLVE_REC_DASH:
+		Coeffs.state = Coeffs.game_state.RESOLVE_REC_DASH
+		_plan_command(5)
 	else:
 		print_debug("camera move reporting completed in the wrong state; you shouldn't ever see this.")
 
 ## Responding to User Input
 func _plan_command(val: int) -> void:
 	# called when '2|3|4' are pressed
+	# used with arg '5' for rec_dash
 	selected_unit.planning_mode(val)
 
 func _lock_command() -> void:
 	# called when the player finishes an action, locks it in and resumes game
 	selected_unit.lock_mode()
+	Coeffs.state = Coeffs.game_state.PROCEED
+
+func _lock_rec_dash() -> void:
+	selected_unit.lock_rec_dash()
 	Coeffs.state = Coeffs.game_state.PROCEED
 
 ## Helpers

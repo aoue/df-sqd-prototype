@@ -21,8 +21,11 @@ if it gets shot and turned, just try to turn your heading back on track.
 [general drawing]
 - for attacks, don't just draw the weapon, also draw the strike arc/impact/lines, too. helps sell attacks.
 
-
 == [[[[prototype step by step]]]] ==
+
+[collision legend]
+layer 1: movement bodies
+layer 2: hit/hurt boxes
 
 [movement and ordering basics]
 - unit's visual framework exists (sprite and circle behind it)..................................................[DONE]
@@ -40,7 +43,6 @@ if it gets shot and turned, just try to turn your heading back on track.
 - add unit stopping exec when it reaches end point OR runs out of ticks.........................................[DONE]
 - add full repeatable cycle of single unit: rec -> act -> prep -> exec for movement.............................[DONE]
 - make sure camera works to assist this too.....................................................................[DONE]
-
 - confirmed that multiple units can exist and receive their orders properly.....................................[DONE]
 - add speedometer visual to unit................................................................................[DONE]
 - adjust acceleration and have rotation also be affected by it..................................................[DONE]
@@ -48,24 +50,59 @@ if it gets shot and turned, just try to turn your heading back on track.
 - adjusted rotation and speed again for different emphasis; rotation is no longer a concern for the player......[DONE]
 - replanned some mechanics for more elegance....................................................................[DONE]
 
-- even when we're zoomed out, unit's display labels should remain large.
-- create a target dummy unit which never gets a turn and forever is in recover or something
+
+- add in the (player side) recovery dash mechanic...............................................................[DONE]
+
+- create a fire zone scene that affects the player (dmg + slow down) while overlapping..........................[DONE]
+
+- create melee attack that strikes another unit on overlap......................................................[]
+
+
+
+
+- melee hit:
+	on hit, immediately apply knockback and damage to the guys in question
+	put the striker into recovery
+
+- ranged hit:
+	not physical, just applies some damage every tick to target and also slowdown.
+
 - adjust the player unit's action options to have:
 	1: move
 	2: melee attack-move
 	3: stationary ranged attack
+
 - test each of the actions against the villainous foe
-- add in the recovery dash mechanic
+
+[better idea]?
+highly visible destination pylons on the map.
+when you order a movement for units, you have to select a destination pylon (you can also select multiple in a series)
+	as long as they are all within your movement range, you're fine.
+when you attack, you must also select a destination pylon as the center
+but units still move and collide in real-time.
+when an action finishes, you do rec dash to choose which dest pylon in close range you want to fall back to
+
+this allows for simple to understand maneuvers, but you can plan them with a little more complexity
+moves/attacks can use a very simple range system, which is just how many destination pylons away you can select
+e.g. move can have a range of 4, fire has a range of 3, a certain melee attack has a range of only 2
+
+
+all attacks and targeting will be directly on targets, i think.
+- this other way seems to be needless complexity
+- but we can leave it for now i guess
+
 
 * run game:
 - hits:
-	how do bullets work?
+	how do ranged attacks work?
 	- they do not physically exist in the world
 	- they create an area of effect on the ground, and hit all units inside the area of effect each tick.
 	- they do low damage per tick, but they apply the suppress effect on units, which slows them down.
+	  (and also a unit inside for the whole duration would take much more damage, obviously)
 	
 	to implement these:
-	- create bullet effect that spawns in
+	- create bullet zone packed scene that can be instantiated, exists on a tick timer, etc
+		- so we need to create a new manager scene, effectHolder or something, to pass ticks from a central loc
 	- make the player move through it
 	- run_game() needs to be able to detect the collision, then jump over and resolve the attack
 		- but only jump over when the unit first enters the bullet zone, not every tick
@@ -77,16 +114,14 @@ if it gets shot and turned, just try to turn your heading back on track.
 		- depending on the unit's states, one or both might be hit
 		- both get knockback no matter what, away from the collision
 
-- units in recovery move; they go to stand on an unoccupied destination pylon on the map
-	- ai units: they might choose one nearby, or one isolated from others, may vary.
-	- does the player get to choose where they go? i mean, could be important.
-		- this would be a new event to catch in run_game(): any units who have just entered rec phase
 
+
+- even when we're zoomed out, unit's display labels should remain large.
 
 [design]
 following in grandia 2's footsteps.
 some differences:
-- we target the ground, not other units?
+- we target the ground, not other units (gives more counterplay options)
 - unit facing matters for offense/defense.
 - units continue their execution for as long as the duration lasts or until a hit
 - when two units in execution phase collide, they both strike each other simultaneously (unless one is defeated?)
@@ -94,6 +129,8 @@ some differences:
 	- all units inside the area are suppressed, which slows them down by a lot
 	- can also rotate them away from the source of the fire
 	- a unit in execution that is being suppressed is at risk of not making it to their target
+- if you get struck by a melee attack too, it should slow you down for a while (soft countering, protecting other units)
+
 
 player units should move very quick and snappily, quickly getting to their destinations?
 enemy units should be much slower though i guess

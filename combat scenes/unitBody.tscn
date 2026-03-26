@@ -6,7 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://5kyb6qvh5q8y" path="res://combat assets/unit_arrow.png" id="4_fa3sj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_5oi21"]
-radius = 585.0
+radius = 483.91425
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fa3sj"]
+radius = 583.648
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tyyf3"]
 atlas = ExtResource("2_1k3i4")
@@ -75,16 +78,25 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="UnitBody" type="CharacterBody2D" unique_id=1180004237 node_paths=PackedStringArray("animator", "facing_arrow", "travel_line", "tick_display_label", "speed_display_label")]
+[node name="UnitBody" type="CharacterBody2D" unique_id=1180004237 node_paths=PackedStringArray("animator", "facing_arrow", "hurt_box", "travel_line", "tick_display_label", "speed_display_label")]
 script = ExtResource("1_uf3jt")
 animator = NodePath("UnitAnim")
 facing_arrow = NodePath("UnitArrowHolder/UnitArrow")
+hurt_box = NodePath("UnitHurtBox")
 travel_line = NodePath("Line2D")
 tick_display_label = NodePath("UnitArrowHolder/InfoBackground/TickLabel")
 speed_display_label = NodePath("UnitArrowHolder/InfoBackground/SpeedLabel")
+starting_rec = 1.5
 
-[node name="UnitHitBox" type="CollisionShape2D" parent="." unique_id=1506177344]
+[node name="UnitMovementBox" type="CollisionShape2D" parent="." unique_id=1506177344]
 shape = SubResource("CircleShape2D_5oi21")
+
+[node name="UnitHurtBox" type="Area2D" parent="." unique_id=2112477766]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UnitHurtBox" unique_id=698800110]
+shape = SubResource("CircleShape2D_fa3sj")
 
 [node name="UnitCircle" type="Sprite2D" parent="." unique_id=1714466877]
 scale = Vector2(0.75, 0.75)
@@ -132,3 +144,5 @@ offset_bottom = 79.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "120 SU"
+
+[connection signal="area_entered" from="UnitHurtBox" to="." method="_on_unit_hurt_box_area_entered"]

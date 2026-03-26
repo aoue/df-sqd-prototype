@@ -2,12 +2,13 @@ extends CharacterBody2D
 
 class_name UnitBody
 enum order_mode {INACTIVE, PLANNING, LOCKED}
-enum unit_state {REC, ACT, PREP, EXEC}
+enum unit_state {REC, ACT, PREP, EXEC, REC_DASH}
 
 const circle_radius = 600
 
 @export var animator: AnimatedSprite2D
 @export var facing_arrow: Sprite2D
+@export var hurt_box: Area2D
 @export var travel_line: Line2D
 
 var set_animation: bool
@@ -16,11 +17,13 @@ var current_state: unit_state
 var dest: Vector2
 var arrived: bool
 
+var slowdown: float = 1
 var max_speed: int = 10000
 var speed: int = 0
 var rotation_speed: float = 0.0
 var acceleration: int = 3000
 var rotation_acceleration: float = PI
+var knockback_vector: Vector2
 
 ## Display
 @export var tick_display_label: Label
@@ -28,12 +31,16 @@ var rotation_acceleration: float = PI
 var rec_ticks: float
 var prep_ticks: float
 var exec_ticks: float
+var attacking: bool
+var bounce_small: float = 0.0
+
+@export var starting_rec: float
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	current_order = order_mode.INACTIVE
 	current_state = unit_state.REC
-	rec_ticks = 2
+	rec_ticks = starting_rec
 	set_animation = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -45,42 +52,57 @@ func _physics_process(delta) -> void:
 		travel_line.add_point(get_facing_direction_vector()  * circle_radius)
 		travel_line.add_point(to_local(get_travel_line_first_point_mouse_relative()))
 		travel_line.add_point(to_local(get_travel_mouse_position()))
+	
+	#elif current_order == order_mode.PLANNING and current_state == unit_state.REC_DASH:
 		
 	elif Coeffs.can_proceed(): 
-		if current_order == order_mode.LOCKED:
-			if current_state == unit_state.PREP or current_state == unit_state.EXEC:
+		if current_order == order_mode.LOCKED and not arrived:
+			if current_state == unit_state.PREP or current_state == unit_state.EXEC or current_state == unit_state.REC:
 				travel_line.clear_points()
 				travel_line.add_point(get_facing_direction_vector()  * circle_radius)
 				travel_line.add_point(to_local(get_travel_line_first_point_dest_relative()))
 				travel_line.add_point(to_local(dest))
 			
-			if current_state == unit_state.PREP:
-				# rotation speed also has to accelerate...
-				#rotation_speed = min(rotation_speed + (rotation_acceleration * delta), Coeffs.rotation_constant)
-				rotation_speed = Coeffs.rotation_constant
-				facing_arrow.rotate(rotation_speed * delta * get_rotation_direction())
+			rotation_speed = Coeffs.rotation_constant
+			facing_arrow.rotate(rotation_speed * delta * get_rotation_direction())
 			
 			if current_state == unit_state.EXEC:
 				speed = min(speed + (acceleration * delta), max_speed)
-				velocity = get_facing_direction_vector() * speed
+				velocity = get_facing_direction_vector() * speed * slowdown
 				
-				# Early exit; check if you've arrived at your destination.
-				#print_debug(position.distance_squared_to(dest))
-				if position.distance_to(dest) < 50:
-					arrived = true
-					position = dest
-					current_state = unit_state.REC
-					travel_line.clear_points()
-					
 			elif current_state == unit_state.REC:
-				# then deccelerate instead
-				travel_line.clear_points()
-				#speed = max(speed - (5 * acceleration * delta), 0)
+				#speed = max(speed - (0.5 * acceleration * delta), 0)
+				#speed = 0
+				bounce_small += delta / 100.0
+				velocity = velocity * max(1.0 - bounce_small, 0)
+			elif current_state == unit_state.PREP:
+				#speed = max(speed - (10 * acceleration * delta), 0)
 				speed = 0
-				rotation_speed = 0
-				velocity = Vector2.ZERO
+				knockback_vector = Vector2.ZERO
+				velocity = get_facing_direction_vector() * speed * slowdown
 				
-			move_and_slide()
+				
+			# Early exit; check if you've arrived at your destination.
+			#print_debug(position.distance_squared_to(dest))
+			if not arrived and position.distance_to(dest) < circle_radius:
+				arrived = true
+				if current_state != unit_state.REC:
+					#current_state = unit_state.REC_DASH
+					current_state = unit_state.REC
+				travel_line.clear_points()
+				display_ticks()
+			
+			slowdown = min(1.0, slowdown + delta)  # slowdown dissipates over time
+			
+			#velocity += knockback_vector
+			#move_and_slide()
+			var collision = move_and_collide(velocity * delta)
+			if collision:
+				velocity = velocity.bounce(collision.get_normal())
+				current_state = unit_state.REC
+				bounce_small = delta
+				#if collision.get_collider().has_method("hit"):
+					#collision.get_collider().hit()
 				
 		animate()
 
@@ -143,12 +165,21 @@ func lock_mode() -> void:
 	# temp
 	set_animation = false
 	arrived = false
-	
-	#speed = 500
-	#rotation_speed = PI / 4
+	attacking = true
 	
 	set_ticks()  ## pass in move as argument
+
+func lock_rec_dash() -> void:
+	#rec_ticks = 2
+	#prep_ticks = 0
+	#exec_ticks = 0
+	dest = to_global(travel_line.get_point_position(2))
+	current_order = order_mode.LOCKED
+	current_state = unit_state.REC
 	
+	set_animation = false
+	arrived = false
+	attacking = false
 
 func set_ticks() -> void:
 	# given the locked action, sets tick timers.
@@ -182,7 +213,9 @@ func pass_ticks(delta) -> void:
 	elif current_state == unit_state.EXEC:
 		exec_ticks = max(exec_ticks - delta, 0)
 		if exec_ticks == 0:
+			#current_state = unit_state.REC_DASH
 			current_state = unit_state.REC
+	
 	display_ticks()
 	display_speed()
 
@@ -203,6 +236,8 @@ func display_ticks() -> void:
 	"""
 	if current_state == unit_state.REC:
 		tick_display_label.text = str(snappedf(rec_ticks, 0.1) * 10) + "|REC"
+	elif current_state == unit_state.REC_DASH:
+		tick_display_label.text = "DASH"
 	elif current_state == unit_state.ACT:
 		tick_display_label.text = "ACT"
 	else: 
@@ -235,4 +270,32 @@ func animate() -> void:
 		## TODO still have to draw it
 		
 	
+func _on_unit_hurt_box_area_entered(invading_area: Area2D):
+	# someone has just entered your area!
+	# so apply knockback to yourself and damage yourself too
 	
+	if Coeffs.can_proceed():		
+		print_debug("invaded!")
+		#slowdown = invading_area.slowdown
+		
+		# calculate knockback and slowdown
+		# both units get knocked away in the direction of the collision
+		#print_debug(invading_area.position)
+		#print_debug(position)
+		#var angle_of_knockback: Vector2 = (position - invading_area.position).normalized()
+		#knockback_vector = angle_of_knockback * 1500
+		#print_debug(angle_of_knockback)
+		#print_debug(knockback_vector)
+		#velocity = velocity.bounce()
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+# i need space

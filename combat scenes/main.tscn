@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bged677w6ee85" path="res://combat scripts/main.gd" id="1_58u58"]
 [ext_resource type="PackedScene" uid="uid://dgk8kdkydpt3" path="res://combat scenes/gameCamera.tscn" id="2_7nc6w"]
 [ext_resource type="Texture2D" uid="uid://b2xt0tj0apb7p" path="res://combat assets/unit_circle.png" id="3_7nc6w"]
+[ext_resource type="PackedScene" uid="uid://0udlh63w3hai" path="res://combat scenes/test_unit.tscn" id="4_q5vk2"]
 
 [node name="Main" type="Node2D" unique_id=523028209 node_paths=PackedStringArray("main_camera")]
 script = ExtResource("1_58u58")
@@ -63,3 +64,6 @@ text = "(4) N/A"
 [node name="traffic cone" type="Sprite2D" parent="." unique_id=479133297]
 self_modulate = Color(0.9999998, 0.18018094, 0.26575765, 1)
 texture = ExtResource("3_7nc6w")
+
+[node name="TestUnit" parent="." unique_id=1180004237 instance=ExtResource("4_q5vk2")]
+position = Vector2(-1444, 776)

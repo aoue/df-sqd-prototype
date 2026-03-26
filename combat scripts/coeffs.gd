@@ -7,7 +7,7 @@ Coeffs, which holds constants useful for everyone in game.
 """
 
 """ Game Running, not constants (because i am your sworn enemy) """
-enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, PROCEED} 
+enum game_state {WAITING_TO_RESOLVE_HIT, RESOLVE_HIT, WAITING_TO_RESOLVE_ACT, RESOLVE_ACT, WAITING_TO_RESOLVE_REC_DASH, RESOLVE_REC_DASH, PROCEED} 
 var state: game_state = game_state.PROCEED
 func can_proceed() -> bool:
 	return state == game_state.PROCEED

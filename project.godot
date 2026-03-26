@@ -17,7 +17,6 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="df-squad"
 run/main_scene="uid://2sp55ktd5qxu"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
 
 [autoload]
 

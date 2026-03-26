@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bv7qchc0x1rbw"]
+
+[ext_resource type="Texture2D" uid="uid://bas0vo5yye1g7" path="res://combat assets/fire_zone.png" id="1_hnmlb"]
+[ext_resource type="Script" uid="uid://d26el2bsqsndf" path="res://combat scripts/fire_zone.gd" id="1_jf0on"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ob4lf"]
+radius = 381.08398
+
+[node name="FireZone" type="Area2D" unique_id=1825359414]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_jf0on")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1764101103]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_hnmlb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1773250010]
+shape = SubResource("CircleShape2D_ob4lf")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]
